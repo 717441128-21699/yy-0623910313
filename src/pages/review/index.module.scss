@@ -1,0 +1,198 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-lg 0 $spacing-xl;
+}
+
+.container {
+  padding: 0 $page-padding;
+}
+
+.pageTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.pageSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xl;
+}
+
+.caseSelector {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+
+  .selectorLabel {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    margin-bottom: $spacing-sm;
+  }
+
+  .selectorTabs {
+    display: flex;
+    gap: $spacing-sm;
+    overflow-x: auto;
+    white-space: nowrap;
+
+    .tabItem {
+      display: inline-flex;
+      align-items: center;
+      padding: $spacing-sm $spacing-md;
+      border-radius: $radius-button;
+      font-size: $font-size-sm;
+      color: $color-text-secondary;
+      background: $color-bg-hover;
+      transition: all $transition-base;
+      flex-shrink: 0;
+
+      &.active {
+        background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+        color: $color-text-white;
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+}
+
+.annotationList {
+  .annotationCard {
+    background: $color-bg-card;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-card;
+    margin-bottom: $spacing-lg;
+    overflow: hidden;
+
+    .danmakuSection {
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
+      padding: $spacing-lg;
+      border-left: 6rpx solid $color-error;
+
+      .danmakuHeader {
+        display: flex;
+        align-items: center;
+        margin-bottom: $spacing-md;
+
+        .keyBadge {
+          background: $color-error;
+          color: $color-text-white;
+          font-size: 20rpx;
+          padding: 4rpx $spacing-sm;
+          border-radius: $radius-xs;
+          margin-right: $spacing-sm;
+        }
+
+        .userName {
+          font-size: $font-size-sm;
+          color: $color-text-secondary;
+        }
+      }
+
+      .danmakuContent {
+        font-size: $font-size-lg;
+        color: $color-text-primary;
+        font-weight: $font-weight-medium;
+        line-height: $line-height-loose;
+      }
+    }
+
+    .analysisSection {
+      padding: $spacing-lg;
+
+      .analysisItem {
+        margin-bottom: $spacing-md;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .analysisTitle {
+          display: flex;
+          align-items: center;
+          margin-bottom: $spacing-sm;
+
+          .analysisIcon {
+            width: 40rpx;
+            height: 40rpx;
+            border-radius: $radius-sm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24rpx;
+            margin-right: $spacing-sm;
+          }
+
+          .analysisLabel {
+            font-size: $font-size-sm;
+            font-weight: $font-weight-semibold;
+            color: $color-text-primary;
+          }
+        }
+
+        .analysisContent {
+          font-size: $font-size-sm;
+          color: $color-text-secondary;
+          line-height: $line-height-loose;
+          padding-left: 56rpx;
+        }
+      }
+    }
+
+    .explanationSection {
+      background: linear-gradient(135deg, rgba(30, 64, 175, 0.03) 0%, rgba(59, 130, 246, 0.03) 100%);
+      padding: $spacing-lg;
+      border-top: 2rpx solid $color-divider;
+
+      .explanationTitle {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        color: $color-primary;
+        margin-bottom: $spacing-sm;
+        display: flex;
+        align-items: center;
+
+        .icon {
+          margin-right: $spacing-xs;
+        }
+      }
+
+      .explanationText {
+        font-size: $font-size-sm;
+        color: $color-text-primary;
+        line-height: $line-height-loose;
+      }
+    }
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xxl 0;
+
+  .emptyIcon {
+    font-size: 120rpx;
+    margin-bottom: $spacing-lg;
+  }
+
+  .emptyTitle {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $spacing-sm;
+  }
+
+  .emptyDesc {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    line-height: $line-height-loose;
+  }
+}

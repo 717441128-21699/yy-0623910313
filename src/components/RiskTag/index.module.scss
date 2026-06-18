@@ -1,0 +1,41 @@
+@use '@/styles/variables.scss' as *;
+
+.riskTag {
+  display: inline-flex;
+  align-items: center;
+  border: 2rpx solid;
+  border-radius: $radius-sm;
+  padding: 0 $spacing-sm;
+  white-space: nowrap;
+
+  .dot {
+    width: 12rpx;
+    height: 12rpx;
+    border-radius: $radius-round;
+    margin-right: $spacing-xs;
+  }
+
+  .label {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+  }
+
+  &.sizeSM {
+    padding: 0 $spacing-xs;
+    height: 36rpx;
+
+    .dot {
+      width: 8rpx;
+      height: 8rpx;
+      margin-right: 6rpx;
+    }
+
+    .label {
+      font-size: 20rpx;
+    }
+  }
+
+  &.sizeMD {
+    height: 44rpx;
+  }
+}

@@ -1,0 +1,58 @@
+@use '@/styles/variables.scss' as *;
+
+.distributionBar {
+  width: 100%;
+
+  .barContainer {
+    display: flex;
+    height: 16rpx;
+    border-radius: $radius-sm;
+    overflow: hidden;
+    margin-bottom: $spacing-md;
+    background: $color-bg-hover;
+
+    .barSegment {
+      height: 100%;
+      transition: width $transition-base;
+
+      &:first-child {
+        border-radius: $radius-sm 0 0 $radius-sm;
+      }
+
+      &:last-child {
+        border-radius: 0 $radius-sm $radius-sm 0;
+      }
+    }
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm $spacing-md;
+
+    .legendItem {
+      display: inline-flex;
+      align-items: center;
+      margin-right: $spacing-md;
+
+      .legendDot {
+        width: 16rpx;
+        height: 16rpx;
+        border-radius: $radius-round;
+        margin-right: $spacing-xs;
+      }
+
+      .legendLabel {
+        font-size: $font-size-xs;
+        color: $color-text-secondary;
+        margin-right: $spacing-xs;
+      }
+
+      .legendValue {
+        font-size: $font-size-xs;
+        color: $color-text-primary;
+        font-weight: $font-weight-medium;
+      }
+    }
+  }
+}
