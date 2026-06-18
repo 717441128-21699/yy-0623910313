@@ -4,18 +4,41 @@ import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import { useJudgment } from '@/store/judgmentContext';
-import { mockPersonalReport } from '@/data/mockJudgments';
 import { mockCases } from '@/data/mockCases';
 import { RISK_TYPE_LABELS } from '@/types';
 import { formatAccuracyColor } from '@/utils/risk';
 import type { PersonalReport } from '@/types';
 
 const ReportPage: React.FC = () => {
-  const { report, currentCase, customCases, resetJudgment } = useJudgment();
+  const { report, currentCase, customCases, resetJudgment, lastReport, lastCaseId, setCurrentCase } = useJudgment();
 
   const allCases = useMemo(() => [...mockCases, ...customCases], [customCases]);
-  const activeReport: PersonalReport = report || mockPersonalReport;
-  const caseData = allCases.find(c => c.id === activeReport.caseId);
+
+  const activeReport: PersonalReport | null = report || lastReport;
+  const displayCaseId = currentCase?.id || lastCaseId;
+  const caseData = displayCaseId ? allCases.find(c => c.id === displayCaseId) : undefined;
+
+  if (!activeReport) {
+    return (
+      <ScrollView scrollY className={styles.page}>
+        <View className={styles.container}>
+          <Text className={styles.pageTitle}>训练报告</Text>
+          <View className={styles.emptyState}>
+            <Text className={styles.emptyIcon}>📊</Text>
+            <Text className={styles.emptyTitle}>还没有训练记录</Text>
+            <Text className={styles.emptyDesc}>
+              请先完成一次弹幕风险研判训练，
+              {"\n"}
+              再来查看你的专属分析报告
+            </Text>
+            <Button className={styles.goBtn} onClick={() => Taro.switchTab({ url: '/pages/judgment/index' })}>
+              开始训练
+            </Button>
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
 
   const getScoreLevel = (accuracy: number): string => {
     if (accuracy >= 90) return '优秀';
@@ -58,6 +81,7 @@ const ReportPage: React.FC = () => {
   const handleRetry = () => {
     if (caseData) {
       resetJudgment();
+      setCurrentCase(caseData);
       Taro.switchTab({ url: '/pages/judgment/index' });
     } else {
       Taro.showToast({ title: '请先选择案例', icon: 'none' });

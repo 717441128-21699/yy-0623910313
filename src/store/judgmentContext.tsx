@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import Taro from '@tarojs/taro';
-import type { Case, JudgmentOption, PersonalReport, TeacherAnnotation, Assignment, Group, CaseClassAnalysis, GroupDistribution } from '@/types';
+import type { Case, JudgmentOption, PersonalReport, TeacherAnnotation, Assignment, Group, CaseClassAnalysis, GroupDistribution, Danmaku } from '@/types';
 import { calculateReport, generateSimulatedDistributions, generateMockAnswers } from '@/data/mockJudgments';
 import { mockCases } from '@/data/mockCases';
 
@@ -8,13 +8,22 @@ const STORAGE_KEYS = {
   CUSTOM_CASES: 'danmaku_custom_cases',
   CUSTOM_ANNOTATIONS: 'danmaku_custom_annotations',
   ASSIGNMENTS: 'danmaku_assignments',
-  TRAINING_HISTORY: 'danmaku_training_history',
+  LAST_REPORT: 'danmaku_last_report',
+  LAST_CASE_ID: 'danmaku_last_case_id',
 };
 
 const DEFAULT_GROUPS: Group[] = [
   { id: 'group_class2', name: '新闻2班', studentIds: ['stu001', 'stu002', 'stu003'] },
   { id: 'group_club', name: '舆情社团小组', studentIds: ['stu001', 'stu004', 'stu005'] },
 ];
+
+const STUDENT_NAMES: Record<string, string> = {
+  stu001: '张同学',
+  stu002: '李同学',
+  stu003: '王同学',
+  stu004: '赵同学',
+  stu005: '孙同学',
+};
 
 interface JudgmentContextType {
   currentCase: Case | null;
@@ -40,9 +49,11 @@ interface JudgmentContextType {
   submitAssignment: (caseId: string, accuracy: number) => void;
   reviewAssignment: (assignmentId: string) => void;
   groups: Group[];
-  getCaseClassAnalysis: (caseId: string) => CaseClassAnalysis | null;
+  getCaseClassAnalysis: (caseId: string, danmakus: Danmaku[]) => CaseClassAnalysis | null;
   currentStudentId: string;
   currentStudentName: string;
+  lastReport: PersonalReport | null;
+  lastCaseId: string | null;
 }
 
 const JudgmentContext = createContext<JudgmentContextType | undefined>(undefined);
@@ -67,10 +78,16 @@ const saveToStorage = async <T,>(key: string, value: T): Promise<void> => {
   }
 };
 
-const generateCaseClassAnalysis = (caseId: string, danmakuIds: string[], groupList: Group[]): CaseClassAnalysis => {
-  const groupDistributions: GroupDistribution[] = groupList.slice(0, 3).map(group => {
+const generateCaseClassAnalysis = (
+  caseId: string,
+  danmakus: Danmaku[],
+  groupList: Group[]
+): CaseClassAnalysis => {
+  const danmakuIds = danmakus.map(d => d.id);
+
+  const groupDistributions: GroupDistribution[] = groupList.slice(0, 2).map(group => {
     const accuracy = 50 + Math.floor(Math.random() * 35);
-    const totalCount = 8 + Math.floor(Math.random() * 8);
+    const totalCount = Math.min(group.studentIds.length, 8) + Math.floor(Math.random() * 4);
     return {
       groupId: group.id,
       groupName: group.name,
@@ -80,11 +97,7 @@ const generateCaseClassAnalysis = (caseId: string, danmakuIds: string[], groupLi
     };
   });
 
-  const allCases = [...mockCases];
-  const caseData = allCases.find(c => c.id === caseId);
-  const danmakuList = caseData?.danmakus || [];
-
-  const mostControversial = danmakuList.slice(0, 3).map((d, idx) => ({
+  const mostControversial = danmakus.slice(0, 3).map((d, idx) => ({
     danmakuId: d.id,
     content: d.content,
     controversyScore: 65 + idx * 10 + Math.floor(Math.random() * 15),
@@ -113,21 +126,27 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [groups] = useState<Group[]>(DEFAULT_GROUPS);
   const [classAnalysisCache, setClassAnalysisCache] = useState<Record<string, CaseClassAnalysis>>({});
+  const [lastReport, setLastReport] = useState<PersonalReport | null>(null);
+  const [lastCaseId, setLastCaseId] = useState<string | null>(null);
 
   const currentStudentId = 'stu001';
   const currentStudentName = '张同学';
 
   useEffect(() => {
     const initStorage = async () => {
-      const [loadedCases, loadedAnnotations, loadedAssignments] = await Promise.all([
+      const [loadedCases, loadedAnnotations, loadedAssignments, loadedLastReport, loadedLastCaseId] = await Promise.all([
         loadFromStorage<Case[]>(STORAGE_KEYS.CUSTOM_CASES, []),
         loadFromStorage<Record<string, TeacherAnnotation[]>>(STORAGE_KEYS.CUSTOM_ANNOTATIONS, {}),
         loadFromStorage<Assignment[]>(STORAGE_KEYS.ASSIGNMENTS, []),
+        loadFromStorage<PersonalReport | null>(STORAGE_KEYS.LAST_REPORT, null),
+        loadFromStorage<string | null>(STORAGE_KEYS.LAST_CASE_ID, null),
       ]);
       setCustomCases(loadedCases);
       setCustomAnnotations(loadedAnnotations);
       setAssignments(loadedAssignments);
-      console.log('[Storage] Loaded:', { loadedCases, loadedAnnotations, loadedAssignments });
+      setLastReport(loadedLastReport);
+      setLastCaseId(loadedLastCaseId);
+      console.log('[Storage] Loaded all data');
     };
     initStorage();
   }, []);
@@ -143,6 +162,18 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     saveToStorage(STORAGE_KEYS.ASSIGNMENTS, assignments);
   }, [assignments]);
+
+  useEffect(() => {
+    if (lastReport) {
+      saveToStorage(STORAGE_KEYS.LAST_REPORT, lastReport);
+    }
+  }, [lastReport]);
+
+  useEffect(() => {
+    if (lastCaseId) {
+      saveToStorage(STORAGE_KEYS.LAST_CASE_ID, lastCaseId);
+    }
+  }, [lastCaseId]);
 
   const setJudgment = useCallback((judgment: JudgmentOption) => {
     setJudgments(prev => {
@@ -167,6 +198,8 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setReport(newReport);
     setIsSubmitted(true);
     setJudgments(finalJudgments);
+    setLastReport(newReport);
+    setLastCaseId(currentCase.id);
     console.log('[Judgment] Report generated:', newReport);
   }, [currentCase, judgments]);
 
@@ -179,10 +212,7 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const addCustomCase = useCallback((caseData: Case) => {
-    setCustomCases(prev => {
-      const next = [...prev, caseData];
-      return next;
-    });
+    setCustomCases(prev => [...prev, caseData]);
   }, []);
 
   const addAnnotation = useCallback((caseId: string, annotation: TeacherAnnotation) => {
@@ -223,14 +253,25 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const group = groups.find(g => g.id === groupId);
     if (!caseData || !group) return;
 
-    const newAssignments: Assignment[] = [
-      { id: `assign_${Date.now()}_1`, caseId, title: caseData.title, teacherName: caseData.teacherName, groupId, groupName: group.name, createdAt: new Date().toLocaleString('zh-CN'), deadline, status: 'pending', studentId: 'stu001', studentName: '张同学' },
-      { id: `assign_${Date.now()}_2`, caseId, title: caseData.title, teacherName: caseData.teacherName, groupId, groupName: group.name, createdAt: new Date().toLocaleString('zh-CN'), deadline, status: 'submitted', submittedAt: new Date().toLocaleString('zh-CN'), studentId: 'stu002', studentName: '李同学', accuracy: 72 },
-      { id: `assign_${Date.now()}_3`, caseId, title: caseData.title, teacherName: caseData.teacherName, groupId, groupName: group.name, createdAt: new Date().toLocaleString('zh-CN'), deadline, status: 'reviewed', submittedAt: new Date(Date.now() - 86400000).toLocaleString('zh-CN'), reviewedAt: new Date(Date.now() - 3600000).toLocaleString('zh-CN'), studentId: 'stu003', studentName: '王同学', accuracy: 85 },
-    ];
+    const newAssignments: Assignment[] = group.studentIds.map((studentId, index) => ({
+      id: `assign_${Date.now()}_${index}`,
+      caseId,
+      title: caseData.title,
+      teacherName: caseData.teacherName,
+      groupId,
+      groupName: group.name,
+      createdAt: new Date().toLocaleString('zh-CN'),
+      deadline,
+      status: 'pending' as const,
+      studentId,
+      studentName: STUDENT_NAMES[studentId] || `同学${index + 1}`,
+    }));
 
-    setAssignments(prev => [...prev, ...newAssignments]);
-    Taro.showToast({ title: `已发布给${group.name}`, icon: 'success' });
+    setAssignments(prev => {
+      const filtered = prev.filter(a => !(a.caseId === caseId && a.groupId === groupId));
+      return [...filtered, ...newAssignments];
+    });
+    Taro.showToast({ title: `已发布给${group.name}的${group.studentIds.length}位同学`, icon: 'success' });
   }, [customCases, groups]);
 
   const submitAssignment = useCallback((caseId: string, accuracy: number) => {
@@ -252,15 +293,14 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     Taro.showToast({ title: '已点评', icon: 'success' });
   }, []);
 
-  const getCaseClassAnalysis = useCallback((caseId: string): CaseClassAnalysis | null => {
-    if (!currentCase) return null;
+  const getCaseClassAnalysis = useCallback((caseId: string, danmakus: Danmaku[]): CaseClassAnalysis | null => {
+    if (!danmakus || danmakus.length === 0) return null;
     if (classAnalysisCache[caseId]) return classAnalysisCache[caseId];
 
-    const danmakuIds = currentCase.danmakus.map(d => d.id);
-    const analysis = generateCaseClassAnalysis(caseId, danmakuIds, groups);
+    const analysis = generateCaseClassAnalysis(caseId, danmakus, groups);
     setClassAnalysisCache(prev => ({ ...prev, [caseId]: analysis }));
     return analysis;
-  }, [currentCase, groups, classAnalysisCache]);
+  }, [groups, classAnalysisCache]);
 
   return (
     <JudgmentContext.Provider
@@ -291,6 +331,8 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getCaseClassAnalysis,
         currentStudentId,
         currentStudentName,
+        lastReport,
+        lastCaseId,
       }}
     >
       {children}

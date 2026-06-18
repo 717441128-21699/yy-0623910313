@@ -4,8 +4,7 @@ import Taro, { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { useJudgment } from '@/store/judgmentContext';
 import { mockCases } from '@/data/mockCases';
-import { RISK_TYPE_LABELS, RISK_LEVEL_COLORS } from '@/types';
-import type { AssignmentStatus, Case, Group } from '@/types';
+import type { AssignmentStatus, Case } from '@/types';
 
 const STATUS_LABELS: Record<AssignmentStatus, string> = {
   pending: '待完成',
@@ -16,7 +15,7 @@ const STATUS_LABELS: Record<AssignmentStatus, string> = {
 type TabType = 'pending' | 'submitted' | 'reviewed' | 'publish';
 
 const AssignmentPage: React.FC = () => {
-  const { assignments, customCases, groups, currentStudentId, currentStudentName, publishAssignment, resetJudgment, setCurrentCase, reviewAssignment } = useJudgment();
+  const { assignments, customCases, groups, currentStudentId, currentStudentName, publishAssignment, resetJudgment, setCurrentCase } = useJudgment();
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [publishCaseId, setPublishCaseId] = useState('');
   const [publishGroupId, setPublishGroupId] = useState('');
@@ -53,8 +52,8 @@ const AssignmentPage: React.FC = () => {
     Taro.navigateTo({ url: '/pages/report/index' });
   };
 
-  const handleReview = (assignmentId: string) => {
-    reviewAssignment(assignmentId);
+  const handleReview = () => {
+    Taro.navigateTo({ url: '/pages/review/index' });
   };
 
   const handlePublish = () => {
@@ -210,9 +209,9 @@ const AssignmentPage: React.FC = () => {
                         </Button>
                         <Button
                           className={styles.secondaryBtn}
-                          onClick={() => handleReview(assignment.id)}
+                          onClick={handleReview}
                         >
-                          教师点评
+                          查看点评
                         </Button>
                       </>
                     )}

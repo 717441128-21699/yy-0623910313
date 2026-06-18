@@ -207,7 +207,9 @@ const JudgmentPage: React.FC = () => {
     ? getClassDistributionsForCase(currentCase.id, currentCase.danmakus.map(d => d.id))
     : [];
 
-  const classAnalysis = currentCase ? getCaseClassAnalysis(currentCase.id) : null;
+  const classAnalysis = currentCase
+    ? getCaseClassAnalysis(currentCase.id, currentCase.danmakus)
+    : null;
 
   const allAnnotations = currentCase
     ? [
