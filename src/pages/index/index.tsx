@@ -42,6 +42,7 @@ const IndexPage: React.FC = () => {
       cases: '/pages/cases/index',
       judgment: '/pages/judgment/index',
       review: '/pages/review/index',
+      assignment: '/pages/assignment/index',
       profile: '/pages/profile/index',
     };
     const url = urlMap[type];
@@ -66,6 +67,7 @@ const IndexPage: React.FC = () => {
   const features = [
     { key: 'cases', icon: '📚', title: '案例课堂', desc: '浏览教学案例库', color: '#EEF2FF' },
     { key: 'judgment', icon: '🎯', title: '分组研判', desc: '开始弹幕风险研判', color: '#ECFDF5' },
+    { key: 'assignment', icon: '📝', title: '班级作业', desc: '查看并完成实训任务', color: '#F5F3FF' },
     { key: 'review', icon: '💬', title: '教师点评', desc: '查看教师解析', color: '#FFFBEB' },
     { key: 'profile', icon: '📊', title: '我的报告', desc: '个人训练分析', color: '#FEF2F2' },
   ];

@@ -135,13 +135,13 @@
 }
 
 .featureGrid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: $spacing-md;
   margin-bottom: $spacing-lg;
 
   .featureItem {
-    width: calc(50% - #{$spacing-md} / 2);
+    width: 100%;
     background: $color-bg-card;
     border-radius: $radius-lg;
     padding: $spacing-lg;
@@ -149,6 +149,11 @@
     display: flex;
     flex-direction: column;
     transition: all $transition-base;
+
+    &:nth-child(4),
+    &:nth-child(5) {
+      grid-column: span 1;
+    }
 
     &:active {
       transform: scale(0.98);

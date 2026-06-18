@@ -231,7 +231,7 @@ export const calculateReport = (caseId: string, judgments: JudgmentOption[]): Pe
         categoryStats[answer.riskType].correct++;
         totalCorrect++;
       } else {
-        categoryStats[j.riskType].wrong++;
+        categoryStats[answer.riskType].wrong++;
       }
     }
   });

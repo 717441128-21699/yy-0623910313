@@ -6,7 +6,8 @@ export default defineAppConfig({
     'pages/profile/index',
     'pages/review/index',
     'pages/report/index',
-    'pages/createCase/index'
+    'pages/createCase/index',
+    'pages/assignment/index'
   ],
   window: {
     backgroundTextStyle: 'light',

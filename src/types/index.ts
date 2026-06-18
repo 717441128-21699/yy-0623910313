@@ -118,3 +118,48 @@ export const ACTION_LABELS: Record<ActionType, string> = {
   respond: '回应',
   report: '上报',
 };
+
+export interface Group {
+  id: string;
+  name: string;
+  studentIds: string[];
+}
+
+export type AssignmentStatus = 'pending' | 'submitted' | 'reviewed';
+
+export interface Assignment {
+  id: string;
+  caseId: string;
+  title: string;
+  teacherName: string;
+  groupId: string;
+  groupName: string;
+  createdAt: string;
+  deadline?: string;
+  status: AssignmentStatus;
+  submittedAt?: string;
+  reviewedAt?: string;
+  studentId: string;
+  studentName: string;
+  accuracy?: number;
+}
+
+export interface GroupDistribution {
+  groupId: string;
+  groupName: string;
+  accuracy: number;
+  totalCount: number;
+  danmakuDistributions: ClassDistribution[];
+}
+
+export interface CaseClassAnalysis {
+  caseId: string;
+  overallAccuracy: number;
+  totalStudents: number;
+  groupDistributions: GroupDistribution[];
+  mostControversialDanmakus: {
+    danmakuId: string;
+    content: string;
+    controversyScore: number;
+  }[];
+}

@@ -1,0 +1,276 @@
+.page {
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+.header {
+  padding: 48rpx 32rpx 24rpx;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.subtitle {
+  font-size: 26rpx;
+  opacity: 0.85;
+  display: block;
+}
+
+.tabs {
+  display: flex;
+  padding: 0 32rpx;
+  margin-top: 24rpx;
+  gap: 16rpx;
+}
+
+.tab {
+  flex: 1;
+  padding: 20rpx 0;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.tabActive {
+  background: #fff;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.container {
+  padding: 32rpx;
+}
+
+.sectionTitle {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #111827;
+  margin: 24rpx 0 16rpx;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  margin-left: 12rpx;
+}
+
+.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.submitted {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.reviewed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.caseTitle {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #111827;
+  flex: 1;
+}
+
+.cardMeta {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 16rpx;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  font-size: 24rpx;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.cardActions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.primaryBtn {
+  flex: 1;
+  padding: 20rpx 0;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.secondaryBtn {
+  flex: 1;
+  padding: 20rpx 0;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+}
+
+.teacherSection {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.teacherTitle {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 24rpx;
+}
+
+.formGroup {
+  margin-bottom: 24rpx;
+}
+
+.label {
+  font-size: 26rpx;
+  color: #374151;
+  display: block;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.select,
+.input {
+  width: 100%;
+  padding: 20rpx 24rpx;
+  background: #f9fafb;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #111827;
+  box-sizing: border-box;
+}
+
+.select:focus,
+.input:focus {
+  border-color: #6366f1;
+  background: #fff;
+}
+
+.groupOption {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  background: #f9fafb;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 12rpx;
+  margin-bottom: 12rpx;
+  transition: all 0.2s;
+}
+
+.groupOptionActive {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.groupRadio {
+  width: 36rpx;
+  height: 36rpx;
+  border: 4rpx solid #d1d5db;
+  border-radius: 50%;
+  margin-right: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.groupRadioActive {
+  border-color: #6366f1;
+}
+
+.groupRadioInner {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #6366f1;
+}
+
+.groupName {
+  font-size: 28rpx;
+  color: #111827;
+  font-weight: 500;
+}
+
+.groupCount {
+  font-size: 24rpx;
+  color: #6b7280;
+  margin-left: auto;
+}
+
+.publishBtn {
+  width: 100%;
+  padding: 24rpx 0;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-top: 16rpx;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 80rpx 40rpx;
+  color: #9ca3af;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.emptyText {
+  font-size: 28rpx;
+  display: block;
+}
+
+.accuracy {
+  font-size: 26rpx;
+  color: #059669;
+  font-weight: 600;
+  margin-left: 12rpx;
+}

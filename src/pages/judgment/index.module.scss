@@ -423,6 +423,119 @@
           }
         }
       }
+
+      .groupCompareSection {
+        margin-top: $spacing-lg;
+
+        .groupTitle {
+          font-size: $font-size-md;
+          font-weight: $font-weight-semibold;
+          color: $color-text-primary;
+          margin-bottom: $spacing-md;
+          display: flex;
+          align-items: center;
+          gap: $spacing-sm;
+        }
+
+        .groupCard {
+          background: $color-bg-page;
+          border-radius: $radius-lg;
+          padding: $spacing-md;
+          margin-bottom: $spacing-sm;
+
+          .groupHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: $spacing-sm;
+
+            .groupName {
+              font-size: $font-size-md;
+              font-weight: $font-weight-semibold;
+              color: $color-text-primary;
+            }
+
+            .groupStats {
+              display: flex;
+              gap: $spacing-md;
+              font-size: $font-size-sm;
+
+              .groupAccuracy {
+                color: $color-success;
+                font-weight: $font-weight-semibold;
+              }
+
+              .groupCount {
+                color: $color-text-tertiary;
+              }
+            }
+          }
+
+          .accuracyBar {
+            height: 12rpx;
+            background: $color-bg-card;
+            border-radius: 6rpx;
+            overflow: hidden;
+
+            .accuracyFill {
+              height: 100%;
+              background: linear-gradient(90deg, $color-success 0%, $color-success-light 100%);
+              border-radius: 6rpx;
+              transition: width 0.3s ease;
+            }
+          }
+        }
+      }
+
+      .controversialSection {
+        margin-top: $spacing-lg;
+
+        .sectionTitle {
+          font-size: $font-size-md;
+          font-weight: $font-weight-semibold;
+          color: $color-text-primary;
+          margin-bottom: $spacing-md;
+          display: flex;
+          align-items: center;
+          gap: $spacing-sm;
+        }
+
+        .controversialItem {
+          background: $color-bg-page;
+          border-radius: $radius-lg;
+          padding: $spacing-md;
+          margin-bottom: $spacing-sm;
+          border-left: 4rpx solid $color-warning;
+
+          .controversialHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: $spacing-sm;
+
+            .controversialRank {
+              background: $color-warning;
+              color: #fff;
+              font-size: 20rpx;
+              padding: 4rpx 12rpx;
+              border-radius: $radius-xs;
+              font-weight: $font-weight-semibold;
+            }
+
+            .controversialScore {
+              font-size: $font-size-sm;
+              color: $color-warning;
+              font-weight: $font-weight-medium;
+            }
+          }
+
+          .controversialContent {
+            font-size: $font-size-sm;
+            color: $color-text-primary;
+            line-height: $line-height-normal;
+          }
+        }
+      }
     }
 
     .modalFooter {

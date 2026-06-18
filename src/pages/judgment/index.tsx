@@ -12,7 +12,7 @@ import {
   ACTION_LABELS,
 } from '@/types';
 import type { RiskType, RiskLevel, ActionType, JudgmentOption } from '@/types';
-import { getClassDistributionsForCase } from '@/data/mockJudgments';
+import { getClassDistributionsForCase, calculateReport } from '@/data/mockJudgments';
 import { getAnnotationsByCaseId } from '@/data/mockCases';
 import { formatAccuracyColor } from '@/utils/risk';
 
@@ -28,6 +28,8 @@ const JudgmentPage: React.FC = () => {
     generateReport,
     report,
     customAnnotations,
+    getCaseClassAnalysis,
+    submitAssignment,
   } = useJudgment();
 
   const [showResult, setShowResult] = useState(false);
@@ -139,20 +141,27 @@ const JudgmentPage: React.FC = () => {
     const completeJudgments = buildCompleteJudgments(true);
     const allDone = completeJudgments.length === totalDanmakus && totalDanmakus > 0;
 
+    const doSubmit = () => {
+      generateReport(completeJudgments);
+      if (currentCase) {
+        const calculatedReport = calculateReport(currentCase.id, completeJudgments);
+        submitAssignment(currentCase.id, calculatedReport.totalAccuracy);
+      }
+      setShowResult(true);
+    };
+
     if (!allDone) {
       Taro.showModal({
         title: '提示',
         content: `还有 ${totalDanmakus - completeJudgments.length} 条弹幕未研判，确定提交吗？`,
         success: (res) => {
           if (res.confirm) {
-            generateReport(completeJudgments);
-            setShowResult(true);
+            doSubmit();
           }
         },
       });
     } else {
-      generateReport(completeJudgments);
-      setShowResult(true);
+      doSubmit();
     }
   };
 
@@ -197,6 +206,8 @@ const JudgmentPage: React.FC = () => {
   const classDistributions = currentCase
     ? getClassDistributionsForCase(currentCase.id, currentCase.danmakus.map(d => d.id))
     : [];
+
+  const classAnalysis = currentCase ? getCaseClassAnalysis(currentCase.id) : null;
 
   const allAnnotations = currentCase
     ? [
@@ -434,6 +445,44 @@ const JudgmentPage: React.FC = () => {
                   );
                 })}
               </View>
+
+              {classAnalysis && classAnalysis.groupDistributions.length > 0 && (
+                <View className={styles.groupCompareSection}>
+                  <Text className={styles.groupTitle}>👥 小组对比分析</Text>
+                  {classAnalysis.groupDistributions.map(group => (
+                    <View key={group.groupId} className={styles.groupCard}>
+                      <View className={styles.groupHeader}>
+                        <Text className={styles.groupName}>{group.groupName}</Text>
+                        <View className={styles.groupStats}>
+                          <Text className={styles.groupAccuracy}>准确率 {group.accuracy}%</Text>
+                          <Text className={styles.groupCount}>{group.totalCount}人</Text>
+                        </View>
+                      </View>
+                      <View className={styles.accuracyBar}>
+                        <View
+                          className={styles.accuracyFill}
+                          style={{ width: `${group.accuracy}%` }}
+                        />
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {classAnalysis && classAnalysis.mostControversialDanmakus.length > 0 && (
+                <View className={styles.controversialSection}>
+                  <Text className={styles.sectionTitle}>🔥 最易分歧弹幕</Text>
+                  {classAnalysis.mostControversialDanmakus.map((item, idx) => (
+                    <View key={item.danmakuId} className={styles.controversialItem}>
+                      <View className={styles.controversialHeader}>
+                        <Text className={styles.controversialRank}>TOP {idx + 1}</Text>
+                        <Text className={styles.controversialScore}>分歧度 {item.controversyScore}%</Text>
+                      </View>
+                      <Text className={styles.controversialContent}>"{item.content}"</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
 
               <View className={styles.keyPoints}>
                 <Text className={styles.pointTitle}>💡 学习要点</Text>
