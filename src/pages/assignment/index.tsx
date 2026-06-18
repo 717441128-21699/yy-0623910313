@@ -15,7 +15,18 @@ const STATUS_LABELS: Record<AssignmentStatus, string> = {
 type TabType = 'pending' | 'submitted' | 'reviewed' | 'publish';
 
 const AssignmentPage: React.FC = () => {
-  const { assignments, customCases, groups, currentStudentId, currentStudentName, publishAssignment, resetJudgment, setCurrentCase } = useJudgment();
+  const {
+    assignments,
+    customCases,
+    groups,
+    currentStudentId,
+    currentStudentName,
+    publishAssignment,
+    resetJudgment,
+    setCurrentCase,
+    setCurrentStudent,
+    allStudents,
+  } = useJudgment();
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [publishCaseId, setPublishCaseId] = useState('');
   const [publishGroupId, setPublishGroupId] = useState('');
@@ -76,6 +87,20 @@ const AssignmentPage: React.FC = () => {
       <View className={styles.header}>
         <Text className={styles.title}>{currentStudentName}的作业中心</Text>
         <Text className={styles.subtitle}>查看待完成、已提交和已点评的实训任务</Text>
+        <View className={styles.studentSwitcher}>
+          <Text className={styles.switcherLabel}>切换身份：</Text>
+          <View className={styles.studentChips}>
+            {allStudents.map(student => (
+              <View
+                key={student.id}
+                className={`${styles.studentChip} ${currentStudentId === student.id ? styles.studentChipActive : ''}`}
+                onClick={() => setCurrentStudent(student.id)}
+              >
+                {student.name}
+              </View>
+            ))}
+          </View>
+        </View>
         <View className={styles.tabs}>
           {(['pending', 'submitted', 'reviewed', 'publish'] as TabType[]).map(tab => (
             <View

@@ -22,6 +22,41 @@
   display: block;
 }
 
+.studentSwitcher {
+  margin-top: 24rpx;
+  padding: 20rpx 24rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16rpx;
+}
+
+.switcherLabel {
+  font-size: 24rpx;
+  opacity: 0.9;
+  margin-bottom: 12rpx;
+  display: block;
+}
+
+.studentChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.studentChip {
+  padding: 12rpx 24rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 32rpx;
+  font-size: 24rpx;
+  color: #fff;
+  transition: all 0.2s;
+}
+
+.studentChipActive {
+  background: #fff;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
 .tabs {
   display: flex;
   padding: 0 32rpx;

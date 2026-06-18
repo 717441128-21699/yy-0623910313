@@ -52,6 +52,8 @@ interface JudgmentContextType {
   getCaseClassAnalysis: (caseId: string, danmakus: Danmaku[]) => CaseClassAnalysis | null;
   currentStudentId: string;
   currentStudentName: string;
+  setCurrentStudent: (studentId: string) => void;
+  allStudents: { id: string; name: string }[];
   lastReport: PersonalReport | null;
   lastCaseId: string | null;
 }
@@ -128,9 +130,10 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [classAnalysisCache, setClassAnalysisCache] = useState<Record<string, CaseClassAnalysis>>({});
   const [lastReport, setLastReport] = useState<PersonalReport | null>(null);
   const [lastCaseId, setLastCaseId] = useState<string | null>(null);
+  const [currentStudentId, setCurrentStudentId] = useState<string>('stu001');
 
-  const currentStudentId = 'stu001';
-  const currentStudentName = '张同学';
+  const allStudents = Object.entries(STUDENT_NAMES).map(([id, name]) => ({ id, name }));
+  const currentStudentName = STUDENT_NAMES[currentStudentId] || '未知同学';
 
   useEffect(() => {
     const initStorage = async () => {
@@ -302,6 +305,11 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return analysis;
   }, [groups, classAnalysisCache]);
 
+  const setCurrentStudent = useCallback((studentId: string) => {
+    setCurrentStudentId(studentId);
+    console.log('[Student] Switched to:', studentId, STUDENT_NAMES[studentId]);
+  }, []);
+
   return (
     <JudgmentContext.Provider
       value={{
@@ -331,6 +339,8 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getCaseClassAnalysis,
         currentStudentId,
         currentStudentName,
+        setCurrentStudent,
+        allStudents,
         lastReport,
         lastCaseId,
       }}
