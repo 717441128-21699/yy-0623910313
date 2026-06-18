@@ -1,4 +1,4 @@
-import type { ClassDistribution, PersonalReport, JudgmentOption, RiskType } from '@/types';
+import type { ClassDistribution, PersonalReport, JudgmentOption, RiskType, RiskLevel, ActionType } from '@/types';
 
 export const mockStandardAnswers: Record<string, Record<string, { riskType: RiskType; riskLevel: string; action: string }>> = {
   case001: {
@@ -125,6 +125,64 @@ export const mockTrainingHistory = [
   },
 ];
 
+const riskTypes: RiskType[] = ['normal', 'complaint', 'sarcasm', 'rumor', 'attack', 'sensitive', 'crisis'];
+const riskLevels: RiskLevel[] = ['low', 'medium', 'high', 'crisis'];
+const actions: ActionType[] = ['ignore', 'observe', 'respond', 'report'];
+
+function randInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function pickWeighted<T>(items: T[], weights: number[]): T {
+  const total = weights.reduce((s, w) => s + w, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < items.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return items[i];
+  }
+  return items[items.length - 1];
+}
+
+export const generateSimulatedDistributions = (
+  danmakuIds: string[],
+  totalCount: number = 45
+): ClassDistribution[] => {
+  return danmakuIds.slice(0, 3).map(danmakuId => {
+    const mainType = pickWeighted(riskTypes, [15, 20, 10, 25, 10, 10, 10]);
+    const mainLevel = pickWeighted(riskLevels, [25, 30, 30, 15]);
+    const mainAction = pickWeighted(actions, [20, 30, 35, 15]);
+
+    const riskTypeCounts: Record<RiskType, number> = { normal: 0, complaint: 0, sarcasm: 0, rumor: 0, attack: 0, sensitive: 0, crisis: 0 };
+    const riskLevelCounts: Record<RiskLevel, number> = { low: 0, medium: 0, high: 0, crisis: 0 };
+    const actionCounts: Record<ActionType, number> = { ignore: 0, observe: 0, respond: 0, report: 0 };
+
+    for (let i = 0; i < totalCount; i++) {
+      const type = Math.random() < 0.4 ? mainType : pickWeighted(riskTypes, [15, 20, 10, 25, 10, 10, 10]);
+      riskTypeCounts[type]++;
+
+      const level = Math.random() < 0.35 ? mainLevel : pickWeighted(riskLevels, [25, 30, 30, 15]);
+      riskLevelCounts[level]++;
+
+      const action = Math.random() < 0.35 ? mainAction : pickWeighted(actions, [20, 30, 35, 15]);
+      actionCounts[action]++;
+    }
+
+    return {
+      danmakuId,
+      riskTypeCounts,
+      riskLevelCounts,
+      actionCounts,
+      totalCount,
+    };
+  });
+};
+
+export const getClassDistributionsForCase = (caseId: string, danmakuIds: string[]): ClassDistribution[] => {
+  const existing = mockClassDistributions[caseId];
+  if (existing && existing.length > 0) return existing;
+  return generateSimulatedDistributions(danmakuIds);
+};
+
 export const getDistribution = (caseId: string, danmakuId: string): ClassDistribution | undefined => {
   const distributions = mockClassDistributions[caseId] || [];
   return distributions.find(d => d.danmakuId === danmakuId);
@@ -134,8 +192,24 @@ export const getStandardAnswer = (caseId: string, danmakuId: string) => {
   return mockStandardAnswers[caseId]?.[danmakuId];
 };
 
+const generateMockAnswers = (danmakuIds: string[]): Record<string, { riskType: RiskType; riskLevel: string; action: string }> => {
+  const answers: Record<string, { riskType: RiskType; riskLevel: string; action: string }> = {};
+  danmakuIds.forEach(id => {
+    const type = pickWeighted(riskTypes, [20, 25, 10, 20, 8, 7, 10]);
+    const level = pickWeighted(riskLevels, [30, 30, 25, 15]);
+    const action = pickWeighted(actions, [20, 30, 35, 15]);
+    answers[id] = { riskType: type, riskLevel: level, action };
+  });
+  return answers;
+};
+
 export const calculateReport = (caseId: string, judgments: JudgmentOption[]): PersonalReport => {
-  const standard = mockStandardAnswers[caseId] || {};
+  let standard = mockStandardAnswers[caseId] || null;
+
+  if (!standard && judgments.length > 0) {
+    standard = generateMockAnswers(judgments.map(j => j.danmakuId));
+  }
+
   const categoryStats: Record<RiskType, { correct: number; wrong: number }> = {
     normal: { correct: 0, wrong: 0 },
     complaint: { correct: 0, wrong: 0 },
@@ -150,14 +224,14 @@ export const calculateReport = (caseId: string, judgments: JudgmentOption[]): Pe
   let totalCount = 0;
 
   judgments.forEach(j => {
-    const answer = standard[j.danmakuId];
+    const answer = standard?.[j.danmakuId];
     if (answer) {
       totalCount++;
       if (j.riskType === answer.riskType) {
         categoryStats[answer.riskType].correct++;
         totalCorrect++;
       } else {
-        categoryStats[answer.riskType].wrong++;
+        categoryStats[j.riskType].wrong++;
       }
     }
   });

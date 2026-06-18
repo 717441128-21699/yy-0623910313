@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import type { Case, JudgmentOption, PersonalReport } from '@/types';
+import type { Case, JudgmentOption, PersonalReport, TeacherAnnotation } from '@/types';
 import { calculateReport } from '@/data/mockJudgments';
 
 interface JudgmentContextType {
@@ -13,8 +13,14 @@ interface JudgmentContextType {
   isSubmitted: boolean;
   setIsSubmitted: (value: boolean) => void;
   report: PersonalReport | null;
-  generateReport: () => void;
+  generateReport: (overrideJudgments?: JudgmentOption[]) => void;
   resetJudgment: () => void;
+  customCases: Case[];
+  addCustomCase: (caseData: Case) => void;
+  customAnnotations: Record<string, TeacherAnnotation[]>;
+  addAnnotation: (caseId: string, annotation: TeacherAnnotation) => void;
+  updateAnnotation: (caseId: string, danmakuId: string, annotation: Partial<TeacherAnnotation>) => void;
+  removeAnnotation: (caseId: string, danmakuId: string) => void;
 }
 
 const JudgmentContext = createContext<JudgmentContextType | undefined>(undefined);
@@ -25,6 +31,8 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [judgments, setJudgments] = useState<JudgmentOption[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [report, setReport] = useState<PersonalReport | null>(null);
+  const [customCases, setCustomCases] = useState<Case[]>([]);
+  const [customAnnotations, setCustomAnnotations] = useState<Record<string, TeacherAnnotation[]>>({});
 
   const setJudgment = useCallback((judgment: JudgmentOption) => {
     setJudgments(prev => {
@@ -42,11 +50,13 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return judgments.find(j => j.danmakuId === danmakuId);
   }, [judgments]);
 
-  const generateReport = useCallback(() => {
+  const generateReport = useCallback((overrideJudgments?: JudgmentOption[]) => {
     if (!currentCase) return;
-    const newReport = calculateReport(currentCase.id, judgments);
+    const finalJudgments = overrideJudgments || judgments;
+    const newReport = calculateReport(currentCase.id, finalJudgments);
     setReport(newReport);
     setIsSubmitted(true);
+    setJudgments(finalJudgments);
     console.log('[Judgment] Report generated:', newReport);
   }, [currentCase, judgments]);
 
@@ -56,6 +66,42 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setJudgments([]);
     setIsSubmitted(false);
     setReport(null);
+  }, []);
+
+  const addCustomCase = useCallback((caseData: Case) => {
+    setCustomCases(prev => [...prev, caseData]);
+  }, []);
+
+  const addAnnotation = useCallback((caseId: string, annotation: TeacherAnnotation) => {
+    setCustomAnnotations(prev => {
+      const existing = prev[caseId] || [];
+      return {
+        ...prev,
+        [caseId]: [...existing, annotation],
+      };
+    });
+  }, []);
+
+  const updateAnnotation = useCallback((caseId: string, danmakuId: string, partial: Partial<TeacherAnnotation>) => {
+    setCustomAnnotations(prev => {
+      const existing = prev[caseId] || [];
+      return {
+        ...prev,
+        [caseId]: existing.map(a =>
+          a.danmakuId === danmakuId ? { ...a, ...partial } : a
+        ),
+      };
+    });
+  }, []);
+
+  const removeAnnotation = useCallback((caseId: string, danmakuId: string) => {
+    setCustomAnnotations(prev => {
+      const existing = prev[caseId] || [];
+      return {
+        ...prev,
+        [caseId]: existing.filter(a => a.danmakuId !== danmakuId),
+      };
+    });
   }, []);
 
   return (
@@ -73,6 +119,12 @@ export const JudgmentProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         report,
         generateReport,
         resetJudgment,
+        customCases,
+        addCustomCase,
+        customAnnotations,
+        addAnnotation,
+        updateAnnotation,
+        removeAnnotation,
       }}
     >
       {children}

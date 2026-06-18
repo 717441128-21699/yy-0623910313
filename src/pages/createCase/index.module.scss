@@ -1,0 +1,218 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-lg 0 $spacing-xl;
+  background: $color-bg-page;
+}
+
+.container {
+  padding: 0 $page-padding;
+}
+
+.pageTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.pageSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xl;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+
+  .sectionTitle {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $spacing-lg;
+    display: flex;
+    align-items: center;
+    padding-left: $spacing-sm;
+    border-left: 6rpx solid $color-primary;
+
+    .icon {
+      margin-right: $spacing-sm;
+    }
+  }
+}
+
+.inputGroup {
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+    margin-bottom: $spacing-xs;
+    display: block;
+
+    .required {
+      color: $color-error;
+      margin-left: $spacing-xs;
+    }
+  }
+
+  .input {
+    width: 100%;
+    min-height: $button-height-md;
+    padding: $spacing-sm $spacing-md;
+    background: $color-bg-hover;
+    border: 2rpx solid $color-border;
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
+    color: $color-text-primary;
+    box-sizing: border-box;
+    transition: border-color $transition-base;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  .textarea {
+    width: 100%;
+    min-height: 240rpx;
+    padding: $spacing-md;
+    background: $color-bg-hover;
+    border: 2rpx solid $color-border;
+    border-radius: $radius-md;
+    font-size: $font-size-sm;
+    color: $color-text-primary;
+    box-sizing: border-box;
+    line-height: $line-height-loose;
+    transition: border-color $transition-base;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  .hint {
+    font-size: $font-size-xs;
+    color: $color-text-tertiary;
+    margin-top: $spacing-xs;
+  }
+}
+
+.danmakuPreview {
+  margin-top: $spacing-md;
+
+  .previewLabel {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+    margin-bottom: $spacing-sm;
+  }
+
+  .previewCount {
+    font-size: $font-size-xs;
+    color: $color-success;
+    margin-left: $spacing-sm;
+  }
+
+  .danmakuList {
+    max-height: 400rpx;
+    overflow-y: auto;
+    background: $color-bg-hover;
+    border-radius: $radius-md;
+    padding: $spacing-sm;
+
+    .danmakuItem {
+      display: flex;
+      align-items: flex-start;
+      padding: $spacing-sm;
+      border-bottom: 2rpx solid $color-divider;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .danmakuIndex {
+        width: 48rpx;
+        height: 48rpx;
+        border-radius: $radius-round;
+        background: rgba(30, 64, 175, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: $font-size-xs;
+        color: $color-primary;
+        font-weight: $font-weight-semibold;
+        margin-right: $spacing-sm;
+        flex-shrink: 0;
+      }
+
+      .danmakuText {
+        flex: 1;
+        font-size: $font-size-sm;
+        color: $color-text-primary;
+        line-height: $line-height-normal;
+      }
+
+      .removeBtn {
+        font-size: $font-size-xs;
+        color: $color-error;
+        padding: $spacing-xs;
+        flex-shrink: 0;
+        margin-left: $spacing-sm;
+      }
+    }
+  }
+}
+
+.submitBar {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+  padding-bottom: $spacing-xl;
+
+  .cancelBtn {
+    @include button-reset;
+    flex: 1;
+    height: $button-height-lg;
+    background: $color-bg-card;
+    color: $color-text-secondary;
+    border: 2rpx solid $color-border;
+    border-radius: $radius-button;
+    font-size: $font-size-md;
+    font-weight: $font-weight-medium;
+
+    &:active {
+      background: $color-bg-hover;
+    }
+  }
+
+  .submitBtn {
+    @include button-reset;
+    flex: 2;
+    height: $button-height-lg;
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+    color: $color-text-white;
+    border-radius: $radius-button;
+    font-size: $font-size-md;
+    font-weight: $font-weight-medium;
+
+    &:active {
+      opacity: 0.9;
+      transform: scale(0.98);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}

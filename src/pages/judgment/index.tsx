@@ -12,7 +12,7 @@ import {
   ACTION_LABELS,
 } from '@/types';
 import type { RiskType, RiskLevel, ActionType, JudgmentOption } from '@/types';
-import { mockClassDistributions } from '@/data/mockJudgments';
+import { getClassDistributionsForCase } from '@/data/mockJudgments';
 import { getAnnotationsByCaseId } from '@/data/mockCases';
 import { formatAccuracyColor } from '@/utils/risk';
 
@@ -27,6 +27,7 @@ const JudgmentPage: React.FC = () => {
     isSubmitted,
     generateReport,
     report,
+    customAnnotations,
   } = useJudgment();
 
   const [showResult, setShowResult] = useState(false);
@@ -47,9 +48,35 @@ const JudgmentPage: React.FC = () => {
   const canProceed = selectedRiskType && selectedRiskLevel && selectedAction;
   const isLast = currentDanmakuIndex === totalDanmakus - 1;
   const isFirst = currentDanmakuIndex === 0;
-  const allCompleted = completedCount === totalDanmakus && totalDanmakus > 0;
+
+  const buildCurrentJudgment = (): JudgmentOption | null => {
+    if (!currentDanmaku || !canProceed) return null;
+    return {
+      danmakuId: currentDanmaku.id,
+      riskType: selectedRiskType!,
+      riskLevel: selectedRiskLevel!,
+      action: selectedAction!,
+    };
+  };
+
+  const buildCompleteJudgments = (withCurrent: boolean): JudgmentOption[] => {
+    const current = buildCurrentJudgment();
+    let result = [...judgments];
+    if (withCurrent && current) {
+      const existingIndex = result.findIndex(j => j.danmakuId === current.danmakuId);
+      if (existingIndex >= 0) {
+        result[existingIndex] = current;
+      } else {
+        result.push(current);
+      }
+    }
+    return result;
+  };
 
   const handleDanmakuClick = (index: number) => {
+    const pending = buildCurrentJudgment();
+    if (pending) setJudgment(pending);
+
     setCurrentDanmakuIndex(index);
     const danmaku = currentCase?.danmakus[index];
     if (danmaku) {
@@ -66,45 +93,31 @@ const JudgmentPage: React.FC = () => {
     }
   };
 
-  const handleSaveCurrent = () => {
-    if (!currentDanmaku || !canProceed) return;
-
-    const judgment: JudgmentOption = {
-      danmakuId: currentDanmaku.id,
-      riskType: selectedRiskType,
-      riskLevel: selectedRiskLevel,
-      action: selectedAction,
-    };
-
-    setJudgment(judgment);
-    console.log('[Judgment] Saved:', judgment);
-  };
-
   const handleNext = () => {
-    handleSaveCurrent();
-    if (isLast) {
-      handleSubmit();
-    } else {
-      const nextIndex = currentDanmakuIndex + 1;
-      setCurrentDanmakuIndex(nextIndex);
-      const nextDanmaku = currentCase?.danmakus[nextIndex];
-      if (nextDanmaku) {
-        const existing = getJudgment(nextDanmaku.id);
-        if (existing) {
-          setSelectedRiskType(existing.riskType);
-          setSelectedRiskLevel(existing.riskLevel);
-          setSelectedAction(existing.action);
-        } else {
-          setSelectedRiskType(null);
-          setSelectedRiskLevel(null);
-          setSelectedAction(null);
-        }
+    const pending = buildCurrentJudgment();
+    if (pending) setJudgment(pending);
+
+    const nextIndex = currentDanmakuIndex + 1;
+    setCurrentDanmakuIndex(nextIndex);
+    const nextDanmaku = currentCase?.danmakus[nextIndex];
+    if (nextDanmaku) {
+      const existing = getJudgment(nextDanmaku.id);
+      if (existing) {
+        setSelectedRiskType(existing.riskType);
+        setSelectedRiskLevel(existing.riskLevel);
+        setSelectedAction(existing.action);
+      } else {
+        setSelectedRiskType(null);
+        setSelectedRiskLevel(null);
+        setSelectedAction(null);
       }
     }
   };
 
   const handlePrev = () => {
-    handleSaveCurrent();
+    const pending = buildCurrentJudgment();
+    if (pending) setJudgment(pending);
+
     const prevIndex = currentDanmakuIndex - 1;
     setCurrentDanmakuIndex(prevIndex);
     const prevDanmaku = currentCase?.danmakus[prevIndex];
@@ -123,20 +136,22 @@ const JudgmentPage: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    handleSaveCurrent();
-    if (!allCompleted) {
+    const completeJudgments = buildCompleteJudgments(true);
+    const allDone = completeJudgments.length === totalDanmakus && totalDanmakus > 0;
+
+    if (!allDone) {
       Taro.showModal({
         title: '提示',
-        content: `还有 ${totalDanmakus - completedCount} 条弹幕未研判，确定提交吗？`,
+        content: `还有 ${totalDanmakus - completeJudgments.length} 条弹幕未研判，确定提交吗？`,
         success: (res) => {
           if (res.confirm) {
-            generateReport();
+            generateReport(completeJudgments);
             setShowResult(true);
           }
         },
       });
     } else {
-      generateReport();
+      generateReport(completeJudgments);
       setShowResult(true);
     }
   };
@@ -179,9 +194,17 @@ const JudgmentPage: React.FC = () => {
     { key: 'report', label: '上报' },
   ];
 
-  const classDistributions = currentCase ? (mockClassDistributions[currentCase.id] || []) : [];
-  const annotations = currentCase ? getAnnotationsByCaseId(currentCase.id) : [];
-  const keyDanmakuIds = annotations.filter(a => a.isKey).map(a => a.danmakuId);
+  const classDistributions = currentCase
+    ? getClassDistributionsForCase(currentCase.id, currentCase.danmakus.map(d => d.id))
+    : [];
+
+  const allAnnotations = currentCase
+    ? [
+        ...getAnnotationsByCaseId(currentCase.id),
+        ...(customAnnotations[currentCase.id] || []),
+      ]
+    : [];
+  const keyDanmakuIds = allAnnotations.filter(a => a.isKey).map(a => a.danmakuId);
 
   const accuracyClass = report
     ? report.totalAccuracy >= 80 ? 'high' : report.totalAccuracy >= 60 ? 'medium' : 'low'
@@ -335,6 +358,7 @@ const JudgmentPage: React.FC = () => {
                   <Button
                     className={styles.submitBtn}
                     onClick={handleSubmit}
+                    disabled={!canProceed}
                   >
                     提交研判
                   </Button>
@@ -374,7 +398,7 @@ const JudgmentPage: React.FC = () => {
 
               <View className={styles.distributionSection}>
                 <Text className={styles.sectionTitle}>班级研判分布</Text>
-                {classDistributions.slice(0, 2).map(dist => {
+                {classDistributions.map(dist => {
                   const danmaku = currentCase.danmakus.find(d => d.id === dist.danmakuId);
                   return (
                     <View key={dist.danmakuId} className={styles.danmakuCompare}>

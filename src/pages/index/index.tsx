@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, Image, Button, ScrollView } from '@tarojs/components';
 import Taro, { useDidShow, usePullDownRefresh } from '@tarojs/taro';
 import styles from './index.module.scss';
@@ -7,11 +7,12 @@ import { mockTrainingHistory } from '@/data/mockJudgments';
 import { useJudgment } from '@/store/judgmentContext';
 
 const IndexPage: React.FC = () => {
-  const { setCurrentCase, resetJudgment } = useJudgment();
+  const { setCurrentCase, resetJudgment, customCases } = useJudgment();
   const [refreshing, setRefreshing] = useState(false);
 
-  const quickCase = mockCases[0];
-  const recentCases = mockCases.slice(0, 2);
+  const allCases = useMemo(() => [...mockCases, ...customCases], [customCases]);
+  const quickCase = allCases[0];
+  const recentCases = allCases.slice(0, 3);
   const completedCount = mockTrainingHistory.length;
   const avgAccuracy = mockTrainingHistory.length > 0
     ? Math.round(mockTrainingHistory.reduce((sum, h) => sum + h.accuracy, 0) / mockTrainingHistory.length)
@@ -54,7 +55,7 @@ const IndexPage: React.FC = () => {
   };
 
   const handleCaseClick = (caseId: string) => {
-    const caseData = mockCases.find(c => c.id === caseId);
+    const caseData = allCases.find(c => c.id === caseId);
     if (caseData) {
       resetJudgment();
       setCurrentCase(caseData);
@@ -131,7 +132,7 @@ const IndexPage: React.FC = () => {
               <Text className={styles.statLabel}>平均准确率</Text>
             </View>
             <View className={styles.statItem}>
-              <Text className={styles.statValue}>{mockCases.length}</Text>
+              <Text className={styles.statValue}>{allCases.length}</Text>
               <Text className={styles.statLabel}>可参与</Text>
             </View>
           </View>

@@ -196,3 +196,114 @@
     line-height: $line-height-loose;
   }
 }
+
+.teacherActions {
+  margin-bottom: $spacing-lg;
+
+  .addAnnotationBtn {
+    @include button-reset;
+    width: 100%;
+    height: $button-height-md;
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+    color: $color-text-white;
+    border-radius: $radius-button;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+
+    &:active {
+      opacity: 0.9;
+      transform: scale(0.98);
+    }
+  }
+}
+
+.addFormSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+
+  .formTitle {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $spacing-lg;
+    padding-left: $spacing-sm;
+    border-left: 6rpx solid $color-primary;
+  }
+
+  .formGroup {
+    margin-bottom: $spacing-md;
+
+    .formLabel {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: $color-text-primary;
+      margin-bottom: $spacing-xs;
+      display: block;
+    }
+
+    .formTextarea {
+      width: 100%;
+      min-height: 160rpx;
+      padding: $spacing-md;
+      background: $color-bg-hover;
+      border: 2rpx solid $color-border;
+      border-radius: $radius-md;
+      font-size: $font-size-sm;
+      color: $color-text-primary;
+      box-sizing: border-box;
+      line-height: $line-height-loose;
+    }
+  }
+
+  .danmakuSelector {
+    max-height: 300rpx;
+    background: $color-bg-hover;
+    border-radius: $radius-md;
+    padding: $spacing-sm;
+
+    .danmakuOption {
+      padding: $spacing-sm $spacing-md;
+      border-radius: $radius-sm;
+      margin-bottom: $spacing-xs;
+      border: 2rpx solid transparent;
+      transition: all $transition-base;
+
+      &.danmakuSelected {
+        background: rgba(30, 64, 175, 0.1);
+        border-color: $color-primary;
+      }
+
+      .danmakuOptionText {
+        font-size: $font-size-sm;
+        color: $color-text-primary;
+      }
+    }
+
+    .noDanmakuHint {
+      font-size: $font-size-sm;
+      color: $color-text-tertiary;
+      text-align: center;
+      padding: $spacing-md;
+    }
+  }
+
+  .saveAnnotationBtn {
+    @include button-reset;
+    width: 100%;
+    height: $button-height-lg;
+    background: linear-gradient(135deg, $color-success 0%, #10B981 100%);
+    color: $color-text-white;
+    border-radius: $radius-button;
+    font-size: $font-size-md;
+    font-weight: $font-weight-medium;
+    margin-top: $spacing-md;
+
+    &:active {
+      opacity: 0.9;
+      transform: scale(0.98);
+    }
+  }
+}

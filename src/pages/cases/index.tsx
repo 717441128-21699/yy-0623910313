@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, Image, Button, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
@@ -9,26 +9,31 @@ import { useJudgment } from '@/store/judgmentContext';
 import type { Case } from '@/types';
 
 const CasesPage: React.FC = () => {
-  const { setCurrentCase, resetJudgment } = useJudgment();
+  const { setCurrentCase, resetJudgment, customCases } = useJudgment();
   const [activeTab, setActiveTab] = useState('all');
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const [showDetail, setShowDetail] = useState(false);
 
+  const allCases = useMemo(() => [...mockCases, ...customCases], [customCases]);
+
   const tabs = [
     { key: 'all', label: '全部' },
+    { key: 'preset', label: '内置案例' },
+    { key: 'custom', label: '自建案例' },
     { key: 'brand', label: '品牌危机' },
-    { key: 'product', label: '产品质量' },
-    { key: 'service', label: '服务投诉' },
-    { key: 'pr', label: '公关事件' },
   ];
 
-  const filteredCases = mockCases;
+  const filteredCases = useMemo(() => {
+    if (activeTab === 'all') return allCases;
+    if (activeTab === 'preset') return mockCases;
+    if (activeTab === 'custom') return customCases;
+    return allCases;
+  }, [activeTab, allCases, customCases]);
 
   const handleViewDetail = (caseData: Case, e?: React.MouseEvent) => {
     e?.stopPropagation();
     setSelectedCase(caseData);
     setShowDetail(true);
-    console.log('[Cases] View detail:', caseData.title);
   };
 
   const handleStartJudgment = (caseData: Case, e?: React.MouseEvent) => {
@@ -51,6 +56,10 @@ const CasesPage: React.FC = () => {
     Taro.switchTab({ url: '/pages/judgment/index' });
   };
 
+  const handleCreateCase = () => {
+    Taro.navigateTo({ url: '/pages/createCase/index' });
+  };
+
   const contextItems = selectedCase ? [
     { label: '直播背景', value: selectedCase.context.background },
     { label: '主播身份', value: selectedCase.context.anchor },
@@ -63,6 +72,17 @@ const CasesPage: React.FC = () => {
       <View className={styles.container}>
         <Text className={styles.pageTitle}>案例课堂</Text>
         <Text className={styles.pageSubtitle}>精选真实舆情案例，在模拟场景中提升研判能力</Text>
+
+        <View className={styles.createEntry} onClick={handleCreateCase}>
+          <View className={styles.createIcon}>
+            <Text>➕</Text>
+          </View>
+          <View className={styles.createInfo}>
+            <Text className={styles.createTitle}>教师创建案例</Text>
+            <Text className={styles.createDesc}>录入直播背景和脱敏弹幕，生成训练案例</Text>
+          </View>
+          <Text className={styles.createArrow}>›</Text>
+        </View>
 
         <ScrollView scrollX className={styles.filterTabs}>
           {tabs.map(tab => (
@@ -87,7 +107,12 @@ const CasesPage: React.FC = () => {
               <View className={styles.content}>
                 <View className={styles.caseHeader}>
                   <View className={styles.caseTags}>
-                    <Text className={styles.tag}>实训案例</Text>
+                    <Text className={styles.tag}>
+                      {caseItem.isCustom ? '自建案例' : '实训案例'}
+                    </Text>
+                    {caseItem.isCustom && (
+                      <Text className={classnames(styles.tag, styles.customTag)}>新</Text>
+                    )}
                   </View>
                   <Text className={styles.difficulty}>⭐⭐⭐ 中等</Text>
                 </View>
@@ -154,6 +179,11 @@ const CasesPage: React.FC = () => {
                     index={idx}
                   />
                 ))}
+                {selectedCase.danmakus.length > 5 && (
+                  <Text className={styles.previewMore}>
+                    还有 {selectedCase.danmakus.length - 5} 条弹幕...
+                  </Text>
+                )}
               </View>
             </ScrollView>
             <View className={styles.modalFooter}>

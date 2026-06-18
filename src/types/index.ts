@@ -36,6 +36,7 @@ export interface Case {
   createdAt: string;
   teacherName: string;
   studentCount: number;
+  isCustom?: boolean;
 }
 
 export interface JudgmentOption {

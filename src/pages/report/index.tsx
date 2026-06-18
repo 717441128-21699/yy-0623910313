@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Button, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
@@ -11,10 +11,11 @@ import { formatAccuracyColor } from '@/utils/risk';
 import type { PersonalReport } from '@/types';
 
 const ReportPage: React.FC = () => {
-  const { report, currentCase, resetJudgment } = useJudgment();
+  const { report, currentCase, customCases, resetJudgment } = useJudgment();
 
+  const allCases = useMemo(() => [...mockCases, ...customCases], [customCases]);
   const activeReport: PersonalReport = report || mockPersonalReport;
-  const caseData = mockCases.find(c => c.id === activeReport.caseId);
+  const caseData = allCases.find(c => c.id === activeReport.caseId);
 
   const getScoreLevel = (accuracy: number): string => {
     if (accuracy >= 90) return '优秀';
